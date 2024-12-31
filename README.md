@@ -11,6 +11,10 @@ Telegram Bulk Media Downloader is a Python-based tool that allows users to downl
 -   **Configurable Settings**: Easily customizable batch size and session settings via `.env` file.
 -   **Cross-Platform**: Runs on Windows, macOS, and Linux.
 -   **Lightweight**: Requires only Python and a few libraries to run.
+## Screenshots
+
+Here are some screenshots demonstrating the tool in action:
+![Download Progress](screenshots/Screenshot_4b.png)
 
 ## Requirements
 
