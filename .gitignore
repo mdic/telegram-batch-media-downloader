@@ -1,0 +1,4 @@
+venv/*
+.env
+test.session
+test.session-journal
