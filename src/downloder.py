@@ -4,7 +4,12 @@ from dotenv import load_dotenv
 from colorama import Fore, Style
 from tqdm.asyncio import tqdm
 from telethon import TelegramClient
-from telethon.tl.types import DocumentAttributeFilename, InputMessagesFilterVideo
+from telethon.tl.types import (
+    DocumentAttributeFilename,
+    InputMessagesFilterVideo,
+    InputMessagesFilterPhotos,
+    InputMessagesFilterDocument,
+)
 
 # Load environment variables
 load_dotenv()
@@ -75,9 +80,7 @@ async def download_in_batches(messages, folder_name, batch_size):
 
 
 async def main():
-
     async with TelegramClient(session_name, api_id, api_hash) as client:
-        folder_name = "downloads"
         print(f"{Fore.GREEN}Connected successfully!{Style.RESET_ALL}")
         channel_username = input(
             f"{Fore.CYAN}Enter the channel name or username: {Style.RESET_ALL}"
@@ -87,14 +90,65 @@ async def main():
         print(
             f"{Fore.YELLOW}Fetched channel: {channel.title} (ID: {channel.id}){Style.RESET_ALL}"
         )
+
+        # Prompt the user for their choice
+        print(
+            f"{Fore.CYAN}Choose the type of content to download:{Style.RESET_ALL}\n"
+            f"1. Images\n"
+            f"2. Videos\n"
+            f"3. PDFs\n"
+            f"4. ZIP files\n"
+            f"5. All types\n"
+        )
+        choice = input(f"{Fore.CYAN}Enter your choice (1-5): {Style.RESET_ALL}")
+
+        folder_name = ""
+        filter_type = None
+
+        if choice == "1":
+            filter_type = InputMessagesFilterPhotos()
+            folder_name = "images"
+        elif choice == "2":
+            filter_type = InputMessagesFilterVideo()
+            folder_name = "videos"
+        elif choice in ["3", "4"]:
+            filter_type = InputMessagesFilterDocument()
+            folder_name = "pdfs" if choice == "3" else "zips"
+        elif choice == "5":
+            filter_type = None
+            folder_name = "all_media"
+        else:
+            print(f"{Fore.RED}Invalid choice! Exiting...{Style.RESET_ALL}")
+            return
+
+        download_path = f"downloads/{folder_name}"
+        if not os.path.exists(download_path):
+            os.makedirs(download_path)
+
+        print(f"{Fore.YELLOW}Fetching media messages...{Style.RESET_ALL}")
         media_messages = await client.get_messages(
-            channel, filter=InputMessagesFilterVideo(), limit=2000
+            channel, filter=filter_type, limit=2000
         )
 
-        print(f"Found {len(media_messages)} video messages.")
+        if choice == "3":
+            media_messages = [
+                msg
+                for msg in media_messages
+                if msg.document and msg.document.mime_type == "application/pdf"
+            ]
+        elif choice == "4":
+            media_messages = [
+                msg
+                for msg in media_messages
+                if msg.document and msg.document.mime_type == "application/zip"
+            ]
+
+        print(f"Found {len(media_messages)} messages matching your choice.")
 
         if media_messages:
             await download_in_batches(media_messages, folder_name, batch_size)
+        else:
+            print(f"{Fore.RED}No media found for the selected type.{Style.RESET_ALL}")
 
 
 if __name__ == "__main__":

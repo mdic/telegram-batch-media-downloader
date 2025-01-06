@@ -15,7 +15,8 @@ Telegram Bulk Media Downloader is a Python-based tool that allows users to downl
 ## Screenshots
 
 Here are some screenshots demonstrating the tool in action:
-![Download Progress](screenshots/downloder.png)
+![Download Progress](screenshots/download_image.jpg)
+![Download Progress](screenshots/pdf_download.jpg)
 
 ## Requirements
 
