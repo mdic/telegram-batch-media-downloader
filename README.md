@@ -4,7 +4,6 @@ Telegram Bulk Media Downloader is a Python-based tool that allows users to downl
 
 ## Features
 
--   **Resumable Downloads**: Automatically resumes downloads from where they stopped.
 -   **Batch Processing**: Downloads media in configurable batches for better resource management.
 -   **Multi-Media Support**: Supports videos, images, PDFs, ZIP files, and more.
 -   **Progress Tracking**: Displays detailed progress bars for each download.
@@ -90,6 +89,7 @@ The tool supports the following media types:
 
 ### Version 1.1
 
+-   **Resumable Downloads**: Automatically resumes downloads from where they stopped.
 -   Add support for audio files.
 -   Retry mechanism for failed downloads.
 
