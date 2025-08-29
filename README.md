@@ -1,11 +1,13 @@
-# Telegram Bulk Media Downloader
+# Telegram Batch Media Downloader
 
-Telegram Bulk Media Downloader is a Python-based tool that allows users to download various types of media files (videos, images, PDFs, ZIPs, etc.) from Telegram channels and groups. The downloader supports resumable downloads, batch processing, and progress tracking, making it ideal for managing large volumes of media efficiently.
+Telegram Batch Media Downloader is a fork of [Telegram Bulk Media Downloader](https://github.com/vinodkr494/telegram-media-downloader), a Python-based tool that allows users to download various types of media files (videos, images, PDFs, ZIPs, etc.) from Telegram channels and groups. The downloader supports resumable downloads, batch processing, and progress tracking, making it ideal for managing large volumes of media efficiently.
 
 ## Features
 
 -   **Batch Processing**: Downloads media in configurable batches for better resource management.
+-   :new: **Use Chat_ID instead of chat/group name**: Automatically converts the Chat_ID number to the chat/group name. 
 -   **Multi-Media Support**: Supports videos, images, PDFs, ZIP files, and more.
+-   :new: **File Autorenaming**: When a file e.g. a video is embedded (i.e. directly playable) from a chat, it uses the accompanying text as filename of the saved file.
 -   **Progress Tracking**: Displays detailed progress bars for each download.
 -   **Configurable Settings**: Easily customizable batch size and session settings via `.env` file.
 -   **Cross-Platform**: Runs on Windows, macOS, and Linux.
@@ -27,8 +29,8 @@ Here are some screenshots demonstrating the tool in action:
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/vinodkr494/telegram-media-downloader.git
-    cd telegram-media-downloader
+    git clone https://github.com/mdic/telegram-batch-media-downloader
+    cd telegram-batch-media-downloader
     ```
 
 2. Install dependencies:
@@ -48,7 +50,7 @@ Here are some screenshots demonstrating the tool in action:
 
 4. Run the script:
     ```bash
-    python src/downloader.py
+    python src/tbmd.py
     ```
 
 ## Usage
@@ -56,7 +58,7 @@ Here are some screenshots demonstrating the tool in action:
 1. **Start the script**:
 
     ```bash
-    python src/downloader.py
+    python src/tbmd.py
     ```
 
 2. Enter the Telegram channel username or group link when prompted.
@@ -85,7 +87,7 @@ The tool supports the following media types:
 -   ZIP files
 -   Any other Telegram media
 
-## Roadmap
+## Roadmap (from the original project)
 
 ### Version 1.1
 
@@ -113,4 +115,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-Made with ❤️ by [Vinod Kumar](https://github.com/vinodkr494).
+Made with ❤️ by [Vinod Kumar](https://github.com/vinodkr494) and edited with equal :heart: by [Matteo Di Cristofaro](https://github.com/mdic) .
