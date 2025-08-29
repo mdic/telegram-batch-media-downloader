@@ -87,28 +87,13 @@ The tool supports the following media types:
 -   ZIP files
 -   Any other Telegram media
 
-## Roadmap (from the original project)
-
-### Version 1.1
-
--   **Resumable Downloads**: Automatically resumes downloads from where they stopped.
--   Add support for audio files.
--   Retry mechanism for failed downloads.
-
-### Version 2.0
-
--   Build a GUI for non-technical users.
-
-## Contributing
-
-We welcome contributions of all kinds! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for details on how to get started.
-
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
+-   [Vinod Kumar](https://github.com/vinodkr494) for the original code :pray:.
 -   [Telethon](https://github.com/LonamiWebs/Telethon) - For making Telegram API integration easy.
 -   [TQDM](https://github.com/tqdm/tqdm) - For elegant progress bars.
 -   [Colorama](https://github.com/tartley/colorama) - For colorful console output.
