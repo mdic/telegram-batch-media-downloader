@@ -1,14 +1,18 @@
 import asyncio
 import os
+import re
+import mimetypes
 from dotenv import load_dotenv
 from colorama import Fore, Style
 from tqdm.asyncio import tqdm
 from telethon import TelegramClient
 from telethon.tl.types import (
-    DocumentAttributeFilename,
     InputMessagesFilterVideo,
     InputMessagesFilterPhotos,
     InputMessagesFilterDocument,
+    PeerChannel,
+    PeerChat,
+    PeerUser,
 )
 
 # Load environment variables
@@ -21,23 +25,47 @@ session_name = os.getenv("SESSION_NAME", "default_session")
 batch_size = int(os.getenv("BATCH_SIZE", 5))
 
 
+def safe_filename(name: str, default_ext: str = ""):
+    """Remove invalid characters from filenames and apply extension if missing."""
+    name = re.sub(r'[\\/*?:"<>|]', "_", name)
+    if default_ext and not name.endswith(default_ext):
+        name += default_ext
+    return name
+
+
+def guess_extension(message):
+    """Return the correct extension based on MIME type or media type."""
+    if message.document and message.document.mime_type:
+        ext = mimetypes.guess_extension(message.document.mime_type)
+        if ext:
+            return ext
+    # fallback if MIME not available
+    if message.video:
+        return ".mp4"
+    if message.photo:
+        return ".jpg"
+    return ""
+
+
 async def download_file(message, folder_name, progress_bars):
     try:
         # Get the file size
         file_size = (
             message.video.size
             if message.video
-            else message.document.size if message.document else 0
+            else message.document.size
+            if message.document
+            else 0
         )
 
-        # Initialize the progress bar
+        # Progress bar
         progress_bar = tqdm(
             total=file_size,
             desc=f"Downloading {message.id}",
             ncols=100,
             unit="B",
             unit_scale=True,
-            leave=True,  # Keep progress bar visible after completion
+            leave=True,
             bar_format=(
                 "{l_bar}%s{bar}%s| {n_fmt}/{total_fmt} {unit} "
                 "| Elapsed: {elapsed}/{remaining} | {rate_fmt}"
@@ -46,22 +74,34 @@ async def download_file(message, folder_name, progress_bars):
         )
         progress_bars.append(progress_bar)
 
-        # Download media with progress
+        # Decide custom filename if caption exists
+        custom_name = None
+        if message.text:  # caption presente
+            ext = guess_extension(message)
+            custom_name = safe_filename(message.text.strip(), ext)
+
+        # Destination path
+        if custom_name:
+            dest = os.path.join("downloads", folder_name, custom_name)
+        else:
+            dest = f"./downloads/{folder_name}/"
+
+        # Download
         await message.download_media(
-            file=f"./{folder_name}/",
+            file=dest,
             progress_callback=lambda current, total: (
                 progress_bar.update(current - progress_bar.n) if total else None
             ),
         )
 
-        # After download finishes, change the color to green
+        # After download finishes, update bar
         progress_bar.bar_format = (
             "{l_bar}%s{bar}%s| {n_fmt}/{total_fmt} {unit} "
             "| Elapsed: {elapsed}/{rate_fmt}" % (Fore.GREEN, Style.RESET_ALL)
         )
         progress_bar.set_description(f"Finished {message.id}")
-        progress_bar.n = progress_bar.total  # Ensure the progress bar shows 100%
-        progress_bar.update(0)  # Force update to display the changes
+        progress_bar.n = progress_bar.total
+        progress_bar.update(0)
 
     except Exception as e:
         print(f"Error downloading media: {e}")
@@ -71,24 +111,35 @@ async def download_in_batches(messages, folder_name, batch_size):
     tasks = []
     progressbar = []
     for i, message in enumerate(messages, 1):
-        # tasks.append(download_file(message, folder_name))
         tasks.append(download_file(message, folder_name, progressbar))
         # Run in batches of batch_size
         if len(tasks) == batch_size or i == len(messages):
             await asyncio.gather(*tasks)
-            tasks.clear()  # Clear tasks after each batch
+            tasks.clear()
 
 
 async def main():
     async with TelegramClient(session_name, api_id, api_hash) as client:
         print(f"{Fore.GREEN}Connected successfully!{Style.RESET_ALL}")
-        channel_username = input(
+        chat_input = input(
             f"{Fore.CYAN}Enter the channel name or username: {Style.RESET_ALL}"
         )
         # Get the channel entity
-        channel = await client.get_entity(channel_username)
+        if chat_input.isdigit():
+            chat_id = int(chat_input)
+            try:
+                channel = await client.get_entity(PeerChannel(chat_id))
+            except ValueError:
+                try:
+                    channel = await client.get_entity(PeerChat(chat_id))
+                except ValueError:
+                    channel = await client.get_entity(PeerUser(chat_id))
+        else:
+            channel = await client.get_entity(chat_input)
+
         print(
-            f"{Fore.YELLOW}Fetched channel: {channel.title} (ID: {channel.id}){Style.RESET_ALL}"
+            f"{Fore.YELLOW}Fetched channel: {channel.title if hasattr(channel, 'title') else 'Private Chat'} "
+            f"(ID: {channel.id}){Style.RESET_ALL}"
         )
 
         # Prompt the user for their choice
