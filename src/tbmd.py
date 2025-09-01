@@ -125,17 +125,29 @@ async def main():
             f"{Fore.CYAN}Enter the channel name or username: {Style.RESET_ALL}"
         )
         # Get the channel entity
+        # OLD strategy failing with entity ID
+        # if chat_input.isdigit():
+        #     chat_id = int(chat_input)
+        #     try:
+        #         channel = await client.get_entity(PeerChannel(chat_id))
+        #     except ValueError:
+        #         try:
+        #             channel = await client.get_entity(PeerChat(chat_id))
+        #         except ValueError:
+        #             channel = await client.get_entity(PeerUser(chat_id))
+        # else:
+        #     channel = await client.get_entity(chat_input)
+
+        # Strategy for entity ID correct processing
+        # MAY BREAK OTHER THINGS, but need to test it!
+        # ::TODO::
         if chat_input.isdigit():
             chat_id = int(chat_input)
-            try:
-                channel = await client.get_entity(PeerChannel(chat_id))
-            except ValueError:
-                try:
-                    channel = await client.get_entity(PeerChat(chat_id))
-                except ValueError:
-                    channel = await client.get_entity(PeerUser(chat_id))
+            channel = await client.get_entity(chat_id)
         else:
             channel = await client.get_entity(chat_input)
+
+        # Strategy with entity ID
 
         print(
             f"{Fore.YELLOW}Fetched channel: {channel.title if hasattr(channel, 'title') else 'Private Chat'} "

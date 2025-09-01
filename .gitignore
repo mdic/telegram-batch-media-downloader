@@ -2,3 +2,6 @@ venv/*
 .env
 test.session
 test.session-journal
+session.session
+session.session-journal
+downloads/
